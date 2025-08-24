@@ -18,7 +18,7 @@ export class ProductsController {
   ) {
    }
 
-  @UseGuards(RolesGuard) // Protect the endpoint with the RolesGuard to ensure only authorized users (Admins) can access it -- test deployment
+  @UseGuards(RolesGuard) // Protect the endpoint with the RolesGuard to ensure only authorized users (Admins) can access it -- test deployment 1
   @Post('productCreate') // POST endpoint to create a new product
   @Roles(Role.Admin) // Only users with the 'Admin' role are allowed to access this endpoint
   public async createProduct(
