@@ -1,0 +1,18 @@
+# Ignore local dependencies and build output
+node_modules
+dist
+build
+
+# Logs
+npm-debug.log
+yarn-error.log
+*.log
+
+# OS / IDE files
+.DS_Store
+.idea
+.vscode
+*.swp
+
+# Environment files (copy them manually or use docker-compose env vars)
+.env

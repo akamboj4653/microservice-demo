@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - microservices-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet mongodb://localhost:27017/test
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  microservice-gateway:
+    build: ./Microservice-gateway
+    container_name: microservice-gateway
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      MONGODB_URL: mongodb://mongo:27017/nest_main
+      RABBIT_MQ_URL: amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf
+      PRODUCT_SERVICE_URL: http://product-microservice:3001
+      USER_SERVICE_URL: http://user-microservice:3002
+      JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+      EXPIRES_IN: 30d
+      FRONTEND_URL: http://localhost:4200
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+  # Product Microservice
+  product-microservice:
+    build: ./Product-Microservice
+    container_name: product-microservice
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      MONGODB_URL: mongodb://mongo:27017/nest_main
+      RABBIT_MQ_URL: amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf
+      JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+      EXPIRES_IN: 30d
+      FRONTEND_URL: http://localhost:4200
+      SERVICE_NAME: product-service
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+  # User Microservice
+  user-microservice:
+    build: ./User-Microservice
+    container_name: user-microservice
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      MONGODB_URL: mongodb://mongo:27017/nest_main
+      RABBIT_MQ_URL: amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf
+      JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+      EXPIRES_IN: 30d
+      FRONTEND_URL: http://localhost:4200
+      SERVICE_NAME: user-service
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+# Volumes for MongoDB persistence
+volumes:
+  mongo-data:
+
+# Shared network
+networks:
+  microservices-network:
+    driver: bridge
