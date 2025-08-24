@@ -21,8 +21,8 @@ steps:
     runOptions: 'commands'
     commands: |
       docker pull arunkamboj/microservice-gateway:latest
-      docker pull arunkamboj/user-gateway:latest
-      docker pull arunkamboj/product-gateway:latest
+      docker pull arunkamboj/user-microservice:latest
+      docker pull arunkamboj/product-microservice:latest
     readyTimeout: '20000'
 - task: DockerInstaller@0
   inputs:
