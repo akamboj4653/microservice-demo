@@ -1,5 +1,5 @@
 trigger:
-- master
+- master   # only branches go here
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -13,6 +13,17 @@ variables:
 
 steps:
 # ✅ Install Docker
+
+- task: SSH@0
+  displayName: 'Deploy microservices to server'
+  inputs:
+    sshEndpoint: 'Arun-deployment'
+    runOptions: 'commands'
+    commands: |
+      docker pull arunkamboj/microservice-gateway:latest
+      docker pull arunkamboj/user-microservice:latest
+      docker pull arunkamboj/product-microservice:latest
+    readyTimeout: '20000'
 - task: DockerInstaller@0
   inputs:
     dockerVersion: '20.10.7'
@@ -35,7 +46,7 @@ steps:
     containerRegistry: '$(dockerHubConnection)'
     repository: '$(dockerHubUsername)/$(imageProduct)'
     command: 'buildAndPush'
-    Dockerfile: 'product-microservice/Dockerfile'
+    Dockerfile: 'Product-microservice/Dockerfile'
     buildContext: 'product-microservice'
     tags: 'latest'
 
@@ -46,7 +57,7 @@ steps:
     containerRegistry: '$(dockerHubConnection)'
     repository: '$(dockerHubUsername)/$(imageUser)'
     command: 'buildAndPush'
-    Dockerfile: 'user-microservice/Dockerfile'
+    Dockerfile: 'User-microservice/Dockerfile'
     buildContext: 'user-microservice'
     tags: 'latest'
 
