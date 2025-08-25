@@ -35,7 +35,7 @@ export class UsersController {
 
 
 
-  @Post("signUp") // Endpoint to create a new user
+  @Post("createUser") // Endpoint to create a new user
   @ApiCreatedResponse({
     type: CreateUserResponseDto,
   })
