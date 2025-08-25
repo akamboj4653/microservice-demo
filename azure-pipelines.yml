@@ -78,7 +78,7 @@ steps:
         -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
         -e EXPIRES_IN="30d" \
         -e FRONTEND_URL="http://localhost:4200" \
-        arunkamboj/user-microservice:latest
+        user-microservice:latest
 
       echo "Running Product Service..."
       docker run -d --name product \
@@ -88,7 +88,7 @@ steps:
         -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
         -e EXPIRES_IN="30d" \
         -e FRONTEND_URL="http://localhost:4200" \
-        arunkamboj/product-microservice:latest
+        product-microservice:latest
 
       echo "Running Gateway..."
       docker run -d --name gateway \
@@ -100,4 +100,4 @@ steps:
         -e FRONTEND_URL="http://localhost:4200" \
         -e USER_SERVICE_URL="http://user:3001" \
         -e PRODUCT_SERVICE_URL="http://product:3002" \
-        arunkamboj/microservice-gateway:latest
+        microservice-gateway:latest
