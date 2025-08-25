@@ -12,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    // ConfigModule loads environment variables and configuration settings
+    // ConfigModule loads environment variables and configuration settings test
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env', // Load environment variables from the .env file
