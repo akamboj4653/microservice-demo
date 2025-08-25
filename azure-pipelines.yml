@@ -46,7 +46,7 @@ steps:
     containerRegistry: '$(dockerHubConnection)'
     repository: '$(dockerHubUsername)/$(imageProduct)'
     command: 'buildAndPush'
-    Dockerfile: 'product-microservice/Dockerfile'
+    Dockerfile: 'Product-microservice/Dockerfile'
     buildContext: 'product-microservice'
     tags: 'latest'
 
@@ -57,7 +57,7 @@ steps:
     containerRegistry: '$(dockerHubConnection)'
     repository: '$(dockerHubUsername)/$(imageUser)'
     command: 'buildAndPush'
-    Dockerfile: 'user-microservice/Dockerfile'
+    Dockerfile: 'User-microservice/Dockerfile'
     buildContext: 'user-microservice'
     tags: 'latest'
 
