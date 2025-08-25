@@ -90,7 +90,7 @@ steps:
         arunkamboj/product-microservice:latest
       echo "Running Gateway..."
       docker run -d --name gateway --network micro-net \
-        -p 3000:3000 \
+        -p 8000:3000 \
         -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
         -e RABBIT_MQ_URL="$(RABBIT_MQ_URL)" \
         -e JWT_SECRET="$(JWT_SECRET)" \
