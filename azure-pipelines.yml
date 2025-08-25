@@ -1,5 +1,6 @@
 trigger:
 - master   # only branches go here
+- main   # only branches go here
 
 pool:
   vmImage: 'ubuntu-latest'
