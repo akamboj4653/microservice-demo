@@ -29,6 +29,7 @@ steps:
     dockerVersion: '20.10.7'
 
 # ✅ Build & Push Gateway Image
+
 - task: Docker@2
   displayName: 'Build & Push Gateway Image'
   inputs:
@@ -46,8 +47,8 @@ steps:
     containerRegistry: '$(dockerHubConnection)'
     repository: '$(dockerHubUsername)/$(imageProduct)'
     command: 'buildAndPush'
-    Dockerfile: 'Product-microservice/Dockerfile'
-    buildContext: 'product-microservice'
+    Dockerfile: 'Product-Microservice/Dockerfile'
+    buildContext: 'Product-Microservice'
     tags: 'latest'
 
 # ✅ Build & Push User Microservice Image
@@ -57,12 +58,16 @@ steps:
     containerRegistry: '$(dockerHubConnection)'
     repository: '$(dockerHubUsername)/$(imageUser)'
     command: 'buildAndPush'
-    Dockerfile: 'User-microservice/Dockerfile'
-    buildContext: 'user-microservice'
+    Dockerfile: 'User-Microservice/Dockerfile'
+    buildContext: 'User-Microservice'
     tags: 'latest'
 
 # ✅ Run docker-compose for integration tests
 - script: |
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    docker-compose --version
+    displayName: 'Install docker-compose'
     echo "Starting services with docker-compose..."
     docker-compose -f docker-compose.yml up -d --build
     echo "Waiting for MongoDB to be ready..."
