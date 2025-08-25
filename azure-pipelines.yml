@@ -51,25 +51,74 @@ steps:
     buildContext: 'User-Microservice'
     tags: 'latest'
 
-# ✅ Deploy on Server via SSH
+# # ✅ Deploy on Server via SSH
+# - task: SSH@0
+#   displayName: 'Deploy microservices to server'
+#   inputs:
+#     sshEndpoint: 'Arun-deployment'
+#     runOptions: 'commands'
+#     commands: |
+#       echo "Stopping old containers..."
+#       docker rm -f gateway user product mongo 2>/dev/null || true
+
+#       echo "Pulling latest images..."
+#       docker pull arunkamboj/microservice-gateway:latest
+#       docker pull arunkamboj/user-microservice:latest
+#       docker pull arunkamboj/product-microservice:latest
+#       docker pull mongo:6.0
+
+#       echo "Running MongoDB..."
+#       docker run -d --name mongo -p 27017:27017 mongo:6.0
+
+#       echo "Running User Service..."
+#       docker run -d --name user \
+#         -p 3001:3000 \
+#         -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
+#         -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
+#         -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+#         -e EXPIRES_IN="30d" \
+#         -e FRONTEND_URL="http://localhost:4200" \
+#         user-microservice:latest
+
+#       echo "Running Product Service..."
+#       docker run -d --name product \
+#         -p 3002:3000 \
+#         -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
+#         -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
+#         -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+#         -e EXPIRES_IN="30d" \
+#         -e FRONTEND_URL="http://localhost:4200" \
+#         product-microservice:latest
+
+#       echo "Running Gateway..."
+#       docker run -d --name gateway \
+#         -p 3000:3000 \
+#         -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
+#         -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
+#         -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+#         -e EXPIRES_IN="30d" \
+#         -e FRONTEND_URL="http://localhost:4200" \
+#         -e USER_SERVICE_URL="http://user:3001" \
+#         -e PRODUCT_SERVICE_URL="http://product:3002" \
+#         microservice-gateway:latest
+
 - task: SSH@0
-  displayName: 'Deploy microservices to server'
   inputs:
     sshEndpoint: 'Arun-deployment'
-    runOptions: 'commands'
-    commands: |
+    runOptions: 'inline'
+    inline: |
       echo "Stopping old containers..."
       docker rm -f gateway user product mongo 2>/dev/null || true
-
+      
       echo "Pulling latest images..."
       docker pull arunkamboj/microservice-gateway:latest
       docker pull arunkamboj/user-microservice:latest
       docker pull arunkamboj/product-microservice:latest
       docker pull mongo:6.0
-
+      
       echo "Running MongoDB..."
       docker run -d --name mongo -p 27017:27017 mongo:6.0
-
+      
       echo "Running User Service..."
       docker run -d --name user \
         -p 3001:3000 \
@@ -79,7 +128,7 @@ steps:
         -e EXPIRES_IN="30d" \
         -e FRONTEND_URL="http://localhost:4200" \
         user-microservice:latest
-
+      
       echo "Running Product Service..."
       docker run -d --name product \
         -p 3002:3000 \
@@ -89,7 +138,7 @@ steps:
         -e EXPIRES_IN="30d" \
         -e FRONTEND_URL="http://localhost:4200" \
         product-microservice:latest
-
+      
       echo "Running Gateway..."
       docker run -d --name gateway \
         -p 3000:3000 \
@@ -101,3 +150,4 @@ steps:
         -e USER_SERVICE_URL="http://user:3001" \
         -e PRODUCT_SERVICE_URL="http://product:3002" \
         microservice-gateway:latest
+    readyTimeout: '20000'
