@@ -26,7 +26,7 @@ steps:
     sourceFolder: '$(Build.SourcesDirectory)'
     contents: '**'
     targetFolder: '/home/ubuntu/arunkamboj/app'
-    
+
 # Run docker-compose on server
 - task: SSH@0
   displayName: 'Deploy microservices to server'
@@ -34,9 +34,10 @@ steps:
     sshEndpoint: 'Arun-deployment'
     runOptions: 'commands'
     commands: |
-      docker pull arunkamboj/microservice-gateway:latest
-      docker pull arunkamboj/user-microservice:latest
-      docker pull arunkamboj/product-microservice:latest
+      sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      sudo chmod +x /usr/local/bin/docker-compose
+      docker-compose --version
+      displayName: 'Install docker-compose'
       cd /home/ubuntu/arunkamboj/app
       docker-compose down
       docker-compose up -d --build
