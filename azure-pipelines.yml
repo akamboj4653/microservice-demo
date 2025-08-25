@@ -90,14 +90,14 @@ steps:
         arunkamboj/product-microservice:latest
       echo "Running Gateway..."
       docker run -d --name gateway --network micro-net \
-        -p 8000:3000 \
+        -p 8000:8000 \
         -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
         -e RABBIT_MQ_URL="$(RABBIT_MQ_URL)" \
         -e JWT_SECRET="$(JWT_SECRET)" \
         -e EXPIRES_IN="30d" \
         -e FRONTEND_URL="http://localhost:4200" \
-        -e USER_SERVICE_URL="http://user:3000" \
-        -e PRODUCT_SERVICE_URL="http://product:3000" \
+        -e USER_SERVICE_URL="http://user:3001" \
+        -e PRODUCT_SERVICE_URL="http://product:3002" \
         arunkamboj/microservice-gateway:latest
     failOnStdErr: false
     readyTimeout: '20000'
