@@ -46,8 +46,8 @@ steps:
     containerRegistry: '$(dockerHubConnection)'
     repository: '$(dockerHubUsername)/$(imageProduct)'
     command: 'buildAndPush'
-    Dockerfile: 'Product-microservice/Dockerfile'
-    buildContext: 'product-microservice'
+    Dockerfile: 'Product-Microservice/Dockerfile'
+    buildContext: 'Product-Microservice'
     tags: 'latest'
 
 # ✅ Build & Push User Microservice Image
@@ -57,8 +57,8 @@ steps:
     containerRegistry: '$(dockerHubConnection)'
     repository: '$(dockerHubUsername)/$(imageUser)'
     command: 'buildAndPush'
-    Dockerfile: 'User-microservice/Dockerfile'
-    buildContext: 'user-microservice'
+    Dockerfile: 'User-Microservice/Dockerfile'
+    buildContext: 'User-Microservice'
     tags: 'latest'
 
 # ✅ Run docker-compose for integration tests
