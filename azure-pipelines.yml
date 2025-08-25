@@ -14,37 +14,11 @@ variables:
 
 steps:
 # ✅ Install Docker
-
 - task: DockerInstaller@0
   inputs:
     dockerVersion: '20.10.7'
 
-# Copy repo files to server
-- task: CopyFilesOverSSH@0
-  inputs:
-    sshEndpoint: 'Arun-deployment'
-    sourceFolder: '$(Build.SourcesDirectory)'
-    contents: '**'
-    targetFolder: '/home/ubuntu/arunkamboj/app'
-
-# Run docker-compose on server
-- task: SSH@0
-  displayName: 'Deploy microservices to server'
-  inputs:
-    sshEndpoint: 'Arun-deployment'
-    runOptions: 'commands'
-    commands: |
-      sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      sudo chmod +x /usr/local/bin/docker-compose
-      docker-compose --version
-      displayName: 'Install docker-compose'
-      cd /home/ubuntu/arunkamboj/app
-      docker-compose down
-      docker-compose up -d --build
-    readyTimeout: '20000'
-
 # ✅ Build & Push Gateway Image
-
 - task: Docker@2
   displayName: 'Build & Push Gateway Image'
   inputs:
@@ -76,3 +50,57 @@ steps:
     Dockerfile: 'User-Microservice/Dockerfile'
     buildContext: 'User-Microservice'
     tags: 'latest'
+
+# ✅ Deploy on Server via SSH
+- task: SSH@0
+  displayName: 'Deploy microservices to server'
+  inputs:
+    sshEndpoint: 'Arun-deployment'
+    runOptions: 'commands'
+    commands: |
+      echo "Stopping old containers..."
+      docker stop gateway user product mongo || true
+      docker rm gateway user product mongo || true
+
+      echo "Pulling latest images..."
+      docker pull arunkamboj/microservice-gateway:latest
+      docker pull arunkamboj/user-microservice:latest
+      docker pull arunkamboj/product-microservice:latest
+      docker pull mongo:6.0   # ✅ official mongo image (no need to push)
+
+      echo "Running MongoDB..."
+      docker run -d --name mongo -p 27017:27017 mongo:6.0
+
+      echo "Running User Service..."
+      docker run -d --name user \
+        -p 3001:3000 \
+        -e MONGODB_URL=mongodb://mongo:27017/nest_main \
+        -e RABBIT_MQ_URL=amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf \
+        -e JWT_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30 \
+        -e EXPIRES_IN=30d \
+        -e FRONTEND_URL=http://localhost:4200 \
+        arunkamboj/user-microservice:latest
+
+      echo "Running Product Service..."
+      docker run -d --name product \
+        -p 3002:3000 \
+        -e MONGODB_URL=mongodb://mongo:27017/nest_main \
+        -e RABBIT_MQ_URL=amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf \
+        -e JWT_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30 \
+        -e EXPIRES_IN=30d \
+        -e FRONTEND_URL=http://localhost:4200 \
+        arunkamboj/product-microservice:latest
+
+      echo "Running Gateway..."
+      docker run -d --name gateway \
+        -p 3000:3000 \
+        -e MONGODB_URL=mongodb://mongo:27017/nest_main \
+        -e RABBIT_MQ_URL=amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf \
+        -e JWT_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30 \
+        -e EXPIRES_IN=30d \
+        -e FRONTEND_URL=http://localhost:4200 \
+        -e USER_SERVICE_URL=http://user:3001 \
+        -e PRODUCT_SERVICE_URL=http://product:3002 \
+        arunkamboj/microservice-gateway:latest
+
+    readyTimeout: '20000'
