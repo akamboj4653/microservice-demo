@@ -59,8 +59,18 @@ steps:
     runOptions: 'commands'
     commands: |
       echo "Stopping old containers..."
-      docker stop gateway user product mongo || true
-      docker rm gateway user product mongo || true
+      if [ "$(docker ps -aq -f name=gateway)" ]; then
+      docker rm -f gateway
+      fi
+      if [ "$(docker ps -aq -f name=user)" ]; then
+        docker rm -f user
+      fi
+      if [ "$(docker ps -aq -f name=product)" ]; then
+        docker rm -f product
+      fi
+      if [ "$(docker ps -aq -f name=mongo)" ]; then
+        docker rm -f mongo
+      fi
 
       echo "Pulling latest images..."
       docker pull arunkamboj/microservice-gateway:latest
