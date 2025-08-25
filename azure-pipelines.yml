@@ -59,7 +59,6 @@ steps:
     runOptions: 'commands'
     commands: |
       echo "Stopping old containers..."
-      
       docker rm -f gateway user product mongo 2>/dev/null || true
 
       echo "Pulling latest images..."
@@ -71,36 +70,45 @@ steps:
       echo "Running MongoDB..."
       docker run -d --name mongo -p 27017:27017 mongo:6.0
 
-      echo "Running User Service..."
-      docker run -d --name user \
-        -p 3001:3000 \
-        -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
-        -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
-        -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30" \
-        -e EXPIRES_IN="30d" \
-        -e FRONTEND_URL="http://localhost:4200" \
-        arunkamboj/user-microservice:latest
+- script: |
+    echo "Running User Service..."
+    docker run -d --name user \
+      -p 3001:3000 \
+      -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
+      -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
+      -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+      -e EXPIRES_IN="30d" \
+      -e FRONTEND_URL="http://localhost:4200" \
+      arunkamboj/user-microservice:latest
+      readyTimeout: '20000'
+  displayName: "Run User Service"
 
+- script: |
       echo "Running Product Service..."
       docker run -d --name product \
-        -p 3002:3000 \
-        -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
-        -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
-        -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30" \
-        -e EXPIRES_IN="30d" \
-        -e FRONTEND_URL="http://localhost:4200" \
-        arunkamboj/product-microservice:latest
+      -p 3002:3000 \
+      -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
+      -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
+      -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30" \
+      -e EXPIRES_IN="30d" \
+      -e FRONTEND_URL="http://localhost:4200" \
+      arunkamboj/product-microservice:latest
+      readyTimeout: '20000'
+  displayName: "Run Product Service"
 
+  
+- script: |
       echo "Running Gateway..."
       docker run -d --name gateway \
-        -p 3000:3000 \
-        -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
-        -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
-        -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30" \
-        -e EXPIRES_IN="30d" \
-        -e FRONTEND_URL="http://localhost:4200" \
-        -e USER_SERVICE_URL="http://user:3001" \
-        -e PRODUCT_SERVICE_URL="http://product:3002" \
-        arunkamboj/microservice-gateway:latest
-
-    readyTimeout: '20000'
+      -p 3000:3000 \
+      -e MONGODB_URL="mongodb://mongo:27017/nest_main" \
+      -e RABBIT_MQ_URL="amqps://kfhzzjsf:Bh-LflflYMW9TggvTZPafElQm-EoJMAK@campbell.lmq.cloudamqp.com/kfhzzjsf" \
+      -e JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30" \
+      -e EXPIRES_IN="30d" \
+      -e FRONTEND_URL="http://localhost:4200" \
+      -e USER_SERVICE_URL="http://user:3001" \
+      -e PRODUCT_SERVICE_URL="http://product:3002" \
+      arunkamboj/microservice-gateway:latest
+      readyTimeout: '20000'
+  displayName: "Run Gateway Service"
+  
